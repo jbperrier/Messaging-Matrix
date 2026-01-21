@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging Matrix V7.3 - Pro Importer</title>
+    <title>Messaging Matrix V7.4 - Pro Import/Export</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; }
@@ -14,13 +14,14 @@
     <div class="max-w-6xl mx-auto">
         <header class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.3</span></h1>
-                <p class="text-xs text-slate-500">Wide-Format CSV Importer (A-F Columns)</p>
+                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.4</span></h1>
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Stable Pro Build</p>
             </div>
-            <div class="flex gap-4 items-center">
+            <div class="flex gap-3 items-center">
                 <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="importWideCSV(event)">
-                <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-lg">📊 Import Worksheet</button>
-                <button onclick="clearData()" class="text-xs text-red-500 hover:underline">Reset All</button>
+                <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition">📊 Import CSV</button>
+                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition">💾 Save Backup</button>
+                <button onclick="clearData()" class="text-xs text-red-500 hover:underline">Reset</button>
             </div>
         </header>
 
@@ -37,33 +38,38 @@
                         <button onclick="setVersion('F')" id="tab-F" class="px-4 py-2 rounded text-sm transition">F</button>
                     </div>
                 </div>
-
                 <div id="matrix-inputs" class="space-y-4"></div>
             </div>
 
             <div class="col-span-5">
                 <div class="bg-white p-6 rounded-2xl shadow-xl sticky top-8 border border-slate-200">
                     <h2 class="text-xs font-bold text-slate-400 uppercase mb-4">Preview (Version <span id="current-v-label">A</span>)</h2>
-                    <select id="persona-select" onchange="updateUI()" class="w-full mb-4 p-2 border rounded font-bold text-sm"></select>
+                    <select id="persona-select" onchange="updateUI()" class="w-full mb-4 p-2 border rounded font-bold text-sm bg-slate-50"></select>
                     
-                    <div id="preview-sub" class="p-3 bg-slate-50 border rounded-lg text-sm italic mb-4"></div>
-                    <div id="preview-body" class="p-4 border rounded-xl min-h-[180px] text-sm whitespace-pre-wrap mb-4"></div>
-
-                    <div class="flex gap-2">
-                        <button onclick="generateHandlebars('subject')" class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black transition uppercase text-[10px]">Subject Code</button>
-                        <button onclick="generateHandlebars('body')" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition uppercase text-[10px]">Body Code</button>
+                    <div class="space-y-1 mb-4">
+                        <span class="text-[9px] font-bold text-blue-600 uppercase">Subject Preview</span>
+                        <div id="preview-sub" class="p-3 bg-slate-50 border rounded-lg text-sm italic"></div>
                     </div>
-                    <textarea id="output" class="code-box w-full h-40 p-4 text-[10px] rounded-xl mt-4 outline-none" readonly placeholder="Liquid code will appear here..."></textarea>
+
+                    <div class="space-y-1 mb-6">
+                        <span class="text-[9px] font-bold text-blue-600 uppercase">Body Preview</span>
+                        <div id="preview-body" class="p-4 border rounded-xl min-h-[150px] text-sm whitespace-pre-wrap"></div>
+                    </div>
+
+                    <div class="flex gap-2 mb-4">
+                        <button onclick="generateHandlebars('sub')" class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-xl text-[10px] uppercase">Export Subject Code</button>
+                        <button onclick="generateHandlebars('body')" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase">Export Body Code</button>
+                    </div>
+                    <textarea id="output" class="code-box w-full h-48 p-4 text-[10px] rounded-xl outline-none" readonly placeholder="Handlebars code will generate here..."></textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Updated to match your CSV persona names exactly
         const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Solution Consultant"];
         const versions = ["A", "B", "C", "D", "E", "F"];
-        let data = JSON.parse(localStorage.getItem('matrix_data_v73')) || {};
+        let data = JSON.parse(localStorage.getItem('matrix_pro_v74')) || {};
         let currentV = "A";
 
         function init() {
@@ -78,8 +84,8 @@
                 div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
                 div.innerHTML = `
                     <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase">${p}</h4>
-                    <input type="text" id="sub-${p}" placeholder="Subject Line" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm outline-none focus:ring-1 focus:ring-blue-400">
-                    <textarea id="body-${p}" placeholder="Body Copy" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-20 outline-none focus:ring-1 focus:ring-blue-400"></textarea>
+                    <input type="text" id="sub-${p}" placeholder="Subject" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm outline-none focus:ring-1 focus:ring-blue-400">
+                    <textarea id="body-${p}" placeholder="Body" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-24 outline-none focus:ring-1 focus:ring-blue-400"></textarea>
                 `;
                 container.appendChild(div);
                 const opt = document.createElement('option'); opt.value = p; opt.textContent = p; select.appendChild(opt);
@@ -101,56 +107,72 @@
 
         function save(p, field, val) {
             data[p][currentV][field] = val;
-            localStorage.setItem('matrix_data_v73', JSON.stringify(data));
+            localStorage.setItem('matrix_pro_v74', JSON.stringify(data));
             updateUI();
         }
 
         function updateUI() {
             const p = document.getElementById('persona-select').value;
-            document.getElementById('preview-sub').textContent = data[p][currentV].sub || "(Empty)";
-            document.getElementById('preview-body').textContent = data[p][currentV].body || "(Empty)";
+            document.getElementById('preview-sub').textContent = data[p][currentV].sub || "";
+            document.getElementById('preview-body').textContent = "Hi {{FirstName}},\n\n" + (data[p][currentV].body || "");
         }
 
-        function generateHandlebars(type) {
-            let res = (type === 'body') ? "Hi {{FirstName}},\n\n" : "";
-            personas.forEach((p, index) => {
-                const text = data[p][currentV][type] || "";
-                const isLast = index === personas.length - 1;
-                res += `{{#if (eq Persona "${p}")}}${text}{{else}}`;
-                if(isLast) res += `[Fallback Text]`;
-            });
-            personas.forEach(() => res += "{{/if}}");
-            document.getElementById('output').value = res;
+        // Generate logic matching your "Nested If" spreadsheet structure
+        function generateHandlebars(field) {
+            let code = (field === 'body') ? "Hi {{FirstName}},\n\n" : "";
+            
+            function buildNested(index) {
+                if (index >= personas.length) return "Fallback Text";
+                const p = personas[index];
+                const content = data[p][currentV][field] || "";
+                return `{{#if Persona == '${p}'}}${content}{{else}}${buildNested(index + 1)}{{/if}}`;
+            }
+
+            code += buildNested(0);
+            document.getElementById('output').value = code;
         }
 
         function importWideCSV(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
-                const lines = e.target.result.split(/\r?\n/);
-                const headers = lines[0].split(',').map(h => h.trim());
-                
-                lines.slice(1).forEach(line => {
-                    const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split CSV but respect quotes
-                    if (columns.length < 13) return;
+                const text = e.target.result;
+                // Robust CSV Splitter (Handles quotes and newlines)
+                const rows = text.split(/\r?\n/).map(line => {
+                    const result = [];
+                    let cur = '', inQuote = false;
+                    for (let char of line) {
+                        if (char === '"') inQuote = !inQuote;
+                        else if (char === ',' && !inQuote) { result.push(cur); cur = ''; }
+                        else cur += char;
+                    }
+                    result.push(cur);
+                    return result;
+                });
 
-                    const pName = columns[0].replace(/"/g, '').trim();
+                rows.slice(1).forEach(cols => {
+                    if (cols.length < 13) return;
+                    const pName = cols[0].trim();
                     if (personas.includes(pName)) {
                         versions.forEach((v, i) => {
-                            // Subject Version A is col index 1, B is 2, etc.
-                            // Body Version A is col index 7, B is 8, etc.
-                            data[pName][v].sub = (columns[i + 1] || "").replace(/"/g, '').trim();
-                            data[pName][v].body = (columns[i + 7] || "").replace(/"/g, '').trim();
+                            data[pName][v].sub = cols[i + 1] ? cols[i + 1].trim() : "";
+                            data[pName][v].body = cols[i + 7] ? cols[i + 7].trim() : "";
                         });
                     }
                 });
-                localStorage.setItem('matrix_data_v73', JSON.stringify(data));
+                localStorage.setItem('matrix_pro_v74', JSON.stringify(data));
                 location.reload();
             };
             reader.readAsText(file);
         }
 
-        function clearData() { if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); } }
+        function downloadBackup() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'messaging_matrix_backup.json'; a.click();
+        }
+
+        function clearData() { if(confirm("Clear everything?")) { localStorage.clear(); location.reload(); } }
         init();
     </script>
 </body>
