@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging Matrix</title>
+    <title>Reply.io Matrix v9 (A-F Versions)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; border: 1px solid #1e293b; }
         .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: bold; background: white !important; }
-        .persona-row { transition: all 0.2s; }
+        .tab-btn { transition: all 0.2s; border: 1px solid transparent; }
     </style>
 </head>
 <body class="bg-slate-50 p-4 md:p-8">
@@ -16,15 +16,14 @@
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                    Messaging Matrix <span class="text-green-600 text-sm bg-green-50 px-2 py-1 rounded border border-green-200">v8 CSV Sync</span>
+                    Messaging Matrix <span class="text-blue-600 text-sm bg-blue-50 px-2 py-1 rounded border border-blue-200">v9 Hexa-Version</span>
                 </h1>
-                <p class="text-slate-500 text-sm">Upload CSVs to batch-update your messaging.</p>
+                <p class="text-slate-500 text-sm">Now supporting 6 distinct messaging variations (A-F).</p>
             </div>
             
             <div class="flex flex-wrap items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
                 <button onclick="document.getElementById('csvFile').click()" class="text-[10px] font-bold px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 uppercase">📊 Import CSV</button>
                 <input type="file" id="csvFile" class="hidden" accept=".csv" onchange="handleCSV(event)">
-                <div class="h-4 w-[1px] bg-slate-200 mx-1"></div>
                 <button onclick="downloadBackup()" class="text-[10px] font-bold px-3 py-1.5 bg-slate-100 rounded-md hover:bg-slate-200 text-slate-700 uppercase">💾 Export JSON</button>
                 <button onclick="clearData()" class="text-[10px] font-bold px-3 py-1.5 text-red-400 hover:text-red-600 uppercase">Reset</button>
             </div>
@@ -33,40 +32,44 @@
         <div id="mappingModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
                 <h2 class="text-lg font-bold mb-2">Map CSV Columns</h2>
-                <p class="text-sm text-slate-500 mb-6">Match your CSV headers to the Matrix fields.</p>
-                <div id="mappingFields" class="space-y-4 mb-8"></div>
+                <div id="mappingFields" class="space-y-4 mb-8 text-sm"></div>
                 <div class="flex gap-2">
                     <button onclick="closeMapping()" class="flex-1 py-2 text-sm font-bold text-slate-500 bg-slate-100 rounded-lg">Cancel</button>
-                    <button onclick="finalizeImport()" class="flex-1 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg shadow-lg shadow-blue-200">Start Import</button>
+                    <button onclick="finalizeImport()" class="flex-1 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg shadow-lg">Start Import</button>
                 </div>
             </div>
         </div>
 
         <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <div class="xl:col-span-7 space-y-4">
-                <div class="flex items-center justify-between px-2">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Editing Version:</span>
-                    <div id="version-tabs" class="flex gap-1 bg-slate-200 p-1 rounded-lg">
-                        <button onclick="setVersion('A')" id="tab-A" class="tab-btn px-4 py-1 rounded-md text-xs font-bold">A</button>
-                        <button onclick="setVersion('B')" id="tab-B" class="tab-btn px-4 py-1 rounded-md text-xs font-bold">B</button>
-                    </div>
+            <div class="xl:col-span-7 space-y-6">
+                <div class="flex flex-col gap-2 px-2">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Versions</span>
+                    <div id="version-tabs" class="flex gap-1 bg-slate-200/50 p-1.5 rounded-xl border border-slate-200 w-fit">
+                        </div>
                 </div>
-                <div id="matrix-container" class="space-y-3"></div>
+                <div id="matrix-container" class="space-y-4"></div>
             </div>
 
             <div class="xl:col-span-5">
                 <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 sticky top-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <h2 class="font-bold text-slate-800 text-sm uppercase tracking-tight">Preview & Export</h2>
-                        <select id="preview-persona" onchange="updateUI()" class="text-xs border-none bg-slate-100 rounded-md p-1 font-bold"></select>
+                    <h2 class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-4">Live Preview</h2>
+                    <select id="preview-persona" onchange="updateUI()" class="w-full mb-4 p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm"></select>
+                    
+                    <div class="space-y-1 mb-4">
+                        <span class="text-[9px] font-bold text-blue-600 uppercase">Subject</span>
+                        <div id="preview-subject" class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 italic"></div>
                     </div>
-                    <div id="preview-subject" class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 italic mb-4"></div>
-                    <div id="preview-body" class="p-4 border rounded-xl bg-white min-h-[200px] whitespace-pre-wrap text-sm text-slate-800 shadow-inner mb-6"></div>
+
+                    <div class="space-y-1 mb-6">
+                        <span class="text-[9px] font-bold text-blue-600 uppercase">Body Copy</span>
+                        <div id="preview-body" class="p-4 border border-slate-200 rounded-xl bg-white min-h-[180px] whitespace-pre-wrap text-sm text-slate-800 shadow-inner"></div>
+                    </div>
+
                     <div class="flex gap-2">
-                        <button onclick="exportCode('subject')" class="flex-1 bg-slate-900 text-white text-[11px] py-3 rounded-lg font-black uppercase transition">Export Subject</button>
-                        <button onclick="exportCode('body')" class="flex-1 bg-blue-600 text-white text-[11px] py-3 rounded-lg font-black uppercase transition">Export Body</button>
+                        <button onclick="exportCode('subject')" class="flex-1 bg-slate-900 text-white text-[10px] py-3 rounded-lg font-black uppercase hover:bg-black transition">Handlebars Subject</button>
+                        <button onclick="exportCode('body')" class="flex-1 bg-blue-600 text-white text-[10px] py-3 rounded-lg font-black uppercase hover:bg-blue-700 transition shadow-lg shadow-blue-100">Handlebars Body</button>
                     </div>
-                    <textarea id="output-code" class="code-box w-full h-32 p-4 rounded-xl text-[10px] mt-4" readonly></textarea>
+                    <textarea id="output-code" class="code-box w-full h-32 p-4 rounded-xl text-[10px] mt-4" readonly placeholder="Click export to generate code..."></textarea>
                 </div>
             </div>
         </div>
@@ -74,17 +77,26 @@
 
     <script>
         const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Solution Architect"];
-        const versions = ["A", "B"];
+        const versions = ["A", "B", "C", "D", "E", "F"]; // Expanded to 6
         let data = {};
         let currentVersion = "A";
         let tempCSVHeaders = [];
         let tempCSVRows = [];
 
         function load() {
-            const saved = localStorage.getItem('matrix_v8');
-            if (saved) { data = JSON.parse(saved); } else {
+            const saved = localStorage.getItem('matrix_v9');
+            if (saved) { 
+                data = JSON.parse(saved); 
+                // Migration check: If existing persona data doesn't have E/F, add them
+                Object.keys(data).forEach(p => {
+                    versions.forEach(v => {
+                        if (!data[p][v]) data[p][v] = { sub: "", body: "" };
+                    });
+                });
+            } else {
                 [...personas, "GlobalDefault"].forEach(p => {
-                    data[p] = { A: {sub:"", body:""}, B: {sub:"", body:""} };
+                    data[p] = {};
+                    versions.forEach(v => { data[p][v] = { sub: "", body: "" }; });
                 });
             }
         }
@@ -93,103 +105,23 @@
             load();
             const container = document.getElementById('matrix-container');
             const pSelector = document.getElementById('preview-persona');
+            const tabContainer = document.getElementById('version-tabs');
             
+            // Create Tabs
+            versions.forEach(v => {
+                const btn = document.createElement('button');
+                btn.id = `tab-${v}`;
+                btn.className = "tab-btn px-5 py-2 rounded-lg text-xs font-black uppercase";
+                btn.textContent = v;
+                btn.onclick = () => setVersion(v);
+                tabContainer.appendChild(btn);
+            });
+
+            // Create Persona Rows
             personas.forEach(p => {
                 const div = document.createElement('div');
-                div.className = "p-4 bg-white rounded-xl border border-slate-200 shadow-sm";
+                div.className = "p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-blue-200 transition";
                 div.innerHTML = `
-                    <h3 class="text-xs font-black text-slate-700 uppercase mb-3">${p}</h3>
-                    <input type="text" placeholder="Subject" oninput="saveData('${p}', 'sub', this.value)" id="in-sub-${p}" class="w-full p-2 mb-2 border rounded-lg text-sm">
-                    <textarea placeholder="Body" oninput="saveData('${p}', 'body', this.value)" id="in-body-${p}" class="w-full p-2 border rounded-lg text-sm h-16"></textarea>
-                `;
-                container.appendChild(div);
-                const opt = document.createElement('option'); opt.value = p; opt.textContent = p; pSelector.appendChild(opt);
-            });
-            setVersion('A');
-        }
-
-        function handleCSV(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const lines = event.target.result.split('\n');
-                tempCSVHeaders = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-                tempCSVRows = lines.slice(1).map(l => l.split(',').map(cell => cell.trim().replace(/"/g, '')));
-                openMapping();
-            };
-            reader.readAsText(file);
-        }
-
-        function openMapping() {
-            const modal = document.getElementById('mappingModal');
-            const fields = document.getElementById('mappingFields');
-            const appKeys = ['Persona', 'Version (A or B)', 'Subject', 'Body'];
-            fields.innerHTML = appKeys.map(key => `
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-bold text-slate-600">${key}</label>
-                    <select id="map-${key}" class="text-xs border rounded p-1 w-48">
-                        <option value="">-- Skip --</option>
-                        ${tempCSVHeaders.map((h, i) => `<option value="${i}">${h}</option>`).join('')}
-                    </select>
-                </div>
-            `).join('');
-            modal.classList.remove('hidden');
-        }
-
-        function finalizeImport() {
-            const mPersona = document.getElementById('map-Persona').value;
-            const mVersion = document.getElementById('map-Version (A or B)').value;
-            const mSub = document.getElementById('map-Subject').value;
-            const mBody = document.getElementById('map-Body').value;
-
-            tempCSVRows.forEach(row => {
-                const pName = row[mPersona];
-                const vName = row[mVersion] || "A";
-                if (data[pName] && (vName === "A" || vName === "B")) {
-                    data[pName][vName].sub = row[mSub] || "";
-                    data[pName][vName].body = row[mBody] || "";
-                }
-            });
-            localStorage.setItem('matrix_v8', JSON.stringify(data));
-            location.reload();
-        }
-
-        function saveData(p, field, val) {
-            data[p][currentVersion][field] = val;
-            localStorage.setItem('matrix_v8', JSON.stringify(data));
-            updateUI();
-        }
-
-        function setVersion(v) {
-            currentVersion = v;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-active'));
-            document.getElementById(`tab-${v}`).classList.add('tab-active');
-            personas.forEach(p => {
-                document.getElementById(`in-sub-${p}`).value = data[p][v].sub;
-                document.getElementById(`in-body-${p}`).value = data[p][v].body;
-            });
-            updateUI();
-        }
-
-        function updateUI() {
-            const p = document.getElementById('preview-persona').value;
-            document.getElementById('preview-subject').textContent = data[p][currentVersion].sub || "No Subject";
-            document.getElementById('preview-body').textContent = "Hi {{FirstName}},\n\n" + data[p][currentVersion].body;
-        }
-
-        function exportCode(type) {
-            let res = (type === 'body') ? "Hi {{FirstName}},\n\n" : "";
-            personas.forEach(p => {
-                res += `{{#if Persona == '${p}'}}${data[p][currentVersion][type === 'body' ? 'body' : 'sub']}{{else}}`;
-            });
-            res += "Fallback text here";
-            personas.forEach(() => res += "{{/if}}");
-            document.getElementById('output-code').value = res;
-        }
-
-        function closeMapping() { document.getElementById('mappingModal').classList.add('hidden'); }
-        function clearData() { if(confirm("Clear?")) { localStorage.clear(); location.reload(); } }
-        init();
-    </script>
-</body>
-</html>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-tight">${p}</h3>
+                        <span class="text-[9px] text-slate-400 font-
