@@ -3,125 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reply.io Matrix v9 (A-F Versions)</title>
+    <title>Messaging Matrix V7 - 6 Versions</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; border: 1px solid #1e293b; }
-        .tab-active { border-bottom: 2px solid #2563eb; color: #2563eb; font-weight: bold; background: white !important; }
-        .tab-btn { transition: all 0.2s; border: 1px solid transparent; }
+        .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; }
+        .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; background: white !important; }
     </style>
 </head>
-<body class="bg-slate-50 p-4 md:p-8">
-    <div class="max-w-7xl mx-auto">
-        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div>
-                <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                    Messaging Matrix <span class="text-blue-600 text-sm bg-blue-50 px-2 py-1 rounded border border-blue-200">v9 Hexa-Version</span>
-                </h1>
-                <p class="text-slate-500 text-sm">Now supporting 6 distinct messaging variations (A-F).</p>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
-                <button onclick="document.getElementById('csvFile').click()" class="text-[10px] font-bold px-3 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 uppercase">📊 Import CSV</button>
-                <input type="file" id="csvFile" class="hidden" accept=".csv" onchange="handleCSV(event)">
-                <button onclick="downloadBackup()" class="text-[10px] font-bold px-3 py-1.5 bg-slate-100 rounded-md hover:bg-slate-200 text-slate-700 uppercase">💾 Export JSON</button>
-                <button onclick="clearData()" class="text-[10px] font-bold px-3 py-1.5 text-red-400 hover:text-red-600 uppercase">Reset</button>
-            </div>
+<body class="bg-slate-100 p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.1</span></h1>
+            <button onclick="clearData()" class="text-xs text-red-500 hover:underline">Reset All Data</button>
         </header>
 
-        <div id="mappingModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 border border-slate-200">
-                <h2 class="text-lg font-bold mb-2">Map CSV Columns</h2>
-                <div id="mappingFields" class="space-y-4 mb-8 text-sm"></div>
-                <div class="flex gap-2">
-                    <button onclick="closeMapping()" class="flex-1 py-2 text-sm font-bold text-slate-500 bg-slate-100 rounded-lg">Cancel</button>
-                    <button onclick="finalizeImport()" class="flex-1 py-2 text-sm font-bold text-white bg-blue-600 rounded-lg shadow-lg">Start Import</button>
+        <div class="grid grid-cols-12 gap-8">
+            <div class="col-span-7 space-y-6">
+                <div>
+                    <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Versions</h3>
+                    <div id="version-tabs" class="flex gap-1 bg-slate-200 p-1 rounded-lg w-fit">
+                        <button onclick="setVersion('A')" id="tab-A" class="px-4 py-2 rounded text-sm transition">A</button>
+                        <button onclick="setVersion('B')" id="tab-B" class="px-4 py-2 rounded text-sm transition">B</button>
+                        <button onclick="setVersion('C')" id="tab-C" class="px-4 py-2 rounded text-sm transition">C</button>
+                        <button onclick="setVersion('D')" id="tab-D" class="px-4 py-2 rounded text-sm transition">D</button>
+                        <button onclick="setVersion('E')" id="tab-E" class="px-4 py-2 rounded text-sm transition">E</button>
+                        <button onclick="setVersion('F')" id="tab-F" class="px-4 py-2 rounded text-sm transition">F</button>
+                    </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-8">
-            <div class="xl:col-span-7 space-y-6">
-                <div class="flex flex-col gap-2 px-2">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Versions</span>
-                    <div id="version-tabs" class="flex gap-1 bg-slate-200/50 p-1.5 rounded-xl border border-slate-200 w-fit">
-                        </div>
-                </div>
-                <div id="matrix-container" class="space-y-4"></div>
+                <div id="matrix-inputs" class="space-y-4">
+                    </div>
             </div>
 
-            <div class="xl:col-span-5">
-                <div class="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 sticky top-8">
-                    <h2 class="font-bold text-slate-400 text-[10px] uppercase tracking-widest mb-4">Live Preview</h2>
-                    <select id="preview-persona" onchange="updateUI()" class="w-full mb-4 p-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm"></select>
+            <div class="col-span-5">
+                <div class="bg-white p-6 rounded-2xl shadow-xl sticky top-8 border border-slate-200">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase mb-4">Preview (Version <span id="current-v-label">A</span>)</h2>
+                    <select id="persona-select" onchange="updateUI()" class="w-full mb-4 p-2 border rounded font-bold text-sm"></select>
                     
-                    <div class="space-y-1 mb-4">
-                        <span class="text-[9px] font-bold text-blue-600 uppercase">Subject</span>
-                        <div id="preview-subject" class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium text-slate-700 italic"></div>
-                    </div>
+                    <div id="preview-sub" class="p-3 bg-slate-50 border rounded-lg text-sm italic mb-4"></div>
+                    <div id="preview-body" class="p-4 border rounded-xl min-h-[200px] text-sm whitespace-pre-wrap mb-4"></div>
 
-                    <div class="space-y-1 mb-6">
-                        <span class="text-[9px] font-bold text-blue-600 uppercase">Body Copy</span>
-                        <div id="preview-body" class="p-4 border border-slate-200 rounded-xl bg-white min-h-[180px] whitespace-pre-wrap text-sm text-slate-800 shadow-inner"></div>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="exportCode('subject')" class="flex-1 bg-slate-900 text-white text-[10px] py-3 rounded-lg font-black uppercase hover:bg-black transition">Handlebars Subject</button>
-                        <button onclick="exportCode('body')" class="flex-1 bg-blue-600 text-white text-[10px] py-3 rounded-lg font-black uppercase hover:bg-blue-700 transition shadow-lg shadow-blue-100">Handlebars Body</button>
-                    </div>
-                    <textarea id="output-code" class="code-box w-full h-32 p-4 rounded-xl text-[10px] mt-4" readonly placeholder="Click export to generate code..."></textarea>
+                    <button onclick="generateHandlebars()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition mb-4">Export Handlebars Code</button>
+                    <textarea id="output" class="code-box w-full h-40 p-4 text-[10px] rounded-xl" readonly></textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Solution Architect"];
-        const versions = ["A", "B", "C", "D", "E", "F"]; // Expanded to 6
-        let data = {};
-        let currentVersion = "A";
-        let tempCSVHeaders = [];
-        let tempCSVRows = [];
-
-        function load() {
-            const saved = localStorage.getItem('matrix_v9');
-            if (saved) { 
-                data = JSON.parse(saved); 
-                // Migration check: If existing persona data doesn't have E/F, add them
-                Object.keys(data).forEach(p => {
-                    versions.forEach(v => {
-                        if (!data[p][v]) data[p][v] = { sub: "", body: "" };
-                    });
-                });
-            } else {
-                [...personas, "GlobalDefault"].forEach(p => {
-                    data[p] = {};
-                    versions.forEach(v => { data[p][v] = { sub: "", body: "" }; });
-                });
-            }
-        }
+        const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Architect"];
+        const versions = ["A", "B", "C", "D", "E", "F"];
+        let data = JSON.parse(localStorage.getItem('matrix_data')) || {};
+        let currentV = "A";
 
         function init() {
-            load();
-            const container = document.getElementById('matrix-container');
-            const pSelector = document.getElementById('preview-persona');
-            const tabContainer = document.getElementById('version-tabs');
-            
-            // Create Tabs
-            versions.forEach(v => {
-                const btn = document.createElement('button');
-                btn.id = `tab-${v}`;
-                btn.className = "tab-btn px-5 py-2 rounded-lg text-xs font-black uppercase";
-                btn.textContent = v;
-                btn.onclick = () => setVersion(v);
-                tabContainer.appendChild(btn);
-            });
+            const container = document.getElementById('matrix-inputs');
+            const select = document.getElementById('persona-select');
 
-            // Create Persona Rows
             personas.forEach(p => {
+                if (!data[p]) data[p] = {};
+                versions.forEach(v => { if (!data[p][v]) data[p][v] = { sub: "", body: "" }; });
+
                 const div = document.createElement('div');
-                div.className = "p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-blue-200 transition";
+                div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
                 div.innerHTML = `
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-tight">${p}</h3>
-                        <span class="text-[9px] text-slate-400 font-
+                    <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase">${p}</h4>
+                    <input type="text" id="sub-${p}" placeholder="Subject Line" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm">
+                    <textarea id="body-${p}" placeholder="Body Copy" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-20"></textarea>
+                `;
+                container.appendChild(div);
+                const opt = document.createElement('option'); opt.value = p; opt.textContent = p; select.appendChild(opt);
+            });
+            setVersion('A');
+        }
+
+        function setVersion(v) {
+            currentV = v;
+            document.getElementById('current-v-label').textContent = v;
+            document.querySelectorAll('#version-tabs button').forEach(b => b.classList.remove('tab-active'));
+            document.getElementById(`tab-${v}`).classList.add('tab-active');
+            personas.forEach(p => {
+                document.getElementById(`sub-${p}`).value = data[p][v].sub;
+                document.getElementById(`body-${p}`).value = data[p][v].body;
+            });
+            updateUI();
+        }
+
+        function save(p, field, val) {
+            data[p][currentV][field] = val;
+            localStorage.setItem('matrix_data', JSON.stringify(data));
+            updateUI();
+        }
+
+        function updateUI() {
+            const p = document.getElementById('persona-select').value;
+            document.getElementById('preview-sub').textContent = data[p][currentV].sub || "(No Subject)";
+            document.getElementById('preview-body').textContent = data[p][currentV].body || "(No Body)";
+        }
+
+        function generateHandlebars() {
+            let res = "--- SUBJECTS ---\n";
+            personas.forEach(p => res += `{{#if (eq Persona "${p}")}}${data[p][currentV].sub}{{/if}}`);
+            res += "\n\n--- BODIES ---\n";
+            personas.forEach(p => res += `{{#if (eq Persona "${p}")}}${data[p][currentV].body}{{/if}}`);
+            document.getElementById('output').value = res;
+        }
+
+        function clearData() { if(confirm("Reset all?")) { localStorage.clear(); location.reload(); } }
+        init();
+    </script>
+</body>
+</html>
