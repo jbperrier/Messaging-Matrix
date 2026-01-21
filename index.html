@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging Matrix V7.2 - CSV Import</title>
+    <title>Messaging Matrix V7.3 - Pro Importer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; }
@@ -14,13 +14,12 @@
     <div class="max-w-6xl mx-auto">
         <header class="flex justify-between items-center mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.2</span></h1>
-                <p class="text-xs text-slate-500">Stable Build + CSV Import</p>
+                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.3</span></h1>
+                <p class="text-xs text-slate-500">Wide-Format CSV Importer (A-F Columns)</p>
             </div>
             <div class="flex gap-4 items-center">
-                <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="importCSV(event)">
-                <button onclick="document.getElementById('csv-input').click()" class="bg-white border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition">📊 Import CSV</button>
-                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition">💾 Export JSON</button>
+                <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="importWideCSV(event)">
+                <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition shadow-lg">📊 Import Worksheet</button>
                 <button onclick="clearData()" class="text-xs text-red-500 hover:underline">Reset All</button>
             </div>
         </header>
@@ -48,19 +47,23 @@
                     <select id="persona-select" onchange="updateUI()" class="w-full mb-4 p-2 border rounded font-bold text-sm"></select>
                     
                     <div id="preview-sub" class="p-3 bg-slate-50 border rounded-lg text-sm italic mb-4"></div>
-                    <div id="preview-body" class="p-4 border rounded-xl min-h-[200px] text-sm whitespace-pre-wrap mb-4"></div>
+                    <div id="preview-body" class="p-4 border rounded-xl min-h-[180px] text-sm whitespace-pre-wrap mb-4"></div>
 
-                    <button onclick="generateHandlebars()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition mb-4 uppercase text-xs tracking-widest">Generate Handlebars Code</button>
-                    <textarea id="output" class="code-box w-full h-40 p-4 text-[10px] rounded-xl outline-none" readonly placeholder="Liquid/Handlebars code will appear here..."></textarea>
+                    <div class="flex gap-2">
+                        <button onclick="generateHandlebars('subject')" class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black transition uppercase text-[10px]">Subject Code</button>
+                        <button onclick="generateHandlebars('body')" class="flex-1 bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition uppercase text-[10px]">Body Code</button>
+                    </div>
+                    <textarea id="output" class="code-box w-full h-40 p-4 text-[10px] rounded-xl mt-4 outline-none" readonly placeholder="Liquid code will appear here..."></textarea>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Architect"];
+        // Updated to match your CSV persona names exactly
+        const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Solution Consultant"];
         const versions = ["A", "B", "C", "D", "E", "F"];
-        let data = JSON.parse(localStorage.getItem('matrix_data')) || {};
+        let data = JSON.parse(localStorage.getItem('matrix_data_v73')) || {};
         let currentV = "A";
 
         function init() {
@@ -75,8 +78,8 @@
                 div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
                 div.innerHTML = `
                     <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase">${p}</h4>
-                    <input type="text" id="sub-${p}" placeholder="Subject Line" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm focus:ring-1 focus:ring-blue-400 outline-none">
-                    <textarea id="body-${p}" placeholder="Body Copy" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-20 focus:ring-1 focus:ring-blue-400 outline-none"></textarea>
+                    <input type="text" id="sub-${p}" placeholder="Subject Line" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm outline-none focus:ring-1 focus:ring-blue-400">
+                    <textarea id="body-${p}" placeholder="Body Copy" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-20 outline-none focus:ring-1 focus:ring-blue-400"></textarea>
                 `;
                 container.appendChild(div);
                 const opt = document.createElement('option'); opt.value = p; opt.textContent = p; select.appendChild(opt);
@@ -98,76 +101,56 @@
 
         function save(p, field, val) {
             data[p][currentV][field] = val;
-            localStorage.setItem('matrix_data', JSON.stringify(data));
+            localStorage.setItem('matrix_data_v73', JSON.stringify(data));
             updateUI();
         }
 
         function updateUI() {
             const p = document.getElementById('persona-select').value;
-            document.getElementById('preview-sub').textContent = data[p][currentV].sub || "(No Subject)";
-            document.getElementById('preview-body').textContent = data[p][currentV].body || "(No Body Content)";
+            document.getElementById('preview-sub').textContent = data[p][currentV].sub || "(Empty)";
+            document.getElementById('preview-body').textContent = data[p][currentV].body || "(Empty)";
         }
 
-        function generateHandlebars() {
-            let res = "--- SUBJECTS ---\n";
-            personas.forEach(p => {
-                const text = data[p][currentV].sub || "";
-                res += `{{#if (eq Persona "${p}")}}${text}{{/if}}`;
+        function generateHandlebars(type) {
+            let res = (type === 'body') ? "Hi {{FirstName}},\n\n" : "";
+            personas.forEach((p, index) => {
+                const text = data[p][currentV][type] || "";
+                const isLast = index === personas.length - 1;
+                res += `{{#if (eq Persona "${p}")}}${text}{{else}}`;
+                if(isLast) res += `[Fallback Text]`;
             });
-            res += "\n\n--- BODIES ---\n";
-            personas.forEach(p => {
-                const text = data[p][currentV].body || "";
-                res += `{{#if (eq Persona "${p}")}}${text}{{/if}}`;
-            });
+            personas.forEach(() => res += "{{/if}}");
             document.getElementById('output').value = res;
         }
 
-        function importCSV(event) {
+        function importWideCSV(event) {
             const file = event.target.files[0];
             const reader = new FileReader();
             reader.onload = function(e) {
-                const content = e.target.result;
-                const rows = content.split('\n').map(row => row.split(','));
-                const headers = rows[0].map(h => h.trim().toLowerCase());
+                const lines = e.target.result.split(/\r?\n/);
+                const headers = lines[0].split(',').map(h => h.trim());
                 
-                // Find column indexes
-                const pIdx = headers.indexOf('persona');
-                const vIdx = headers.indexOf('version');
-                const sIdx = headers.indexOf('subject');
-                const bIdx = headers.indexOf('body');
+                lines.slice(1).forEach(line => {
+                    const columns = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); // Split CSV but respect quotes
+                    if (columns.length < 13) return;
 
-                if (pIdx === -1 || vIdx === -1 || sIdx === -1 || bIdx === -1) {
-                    alert("Error: CSV must have Persona, Version, Subject, and Body headers.");
-                    return;
-                }
-
-                rows.slice(1).forEach(row => {
-                    if (row.length < 4) return;
-                    const p = row[pIdx].trim();
-                    const v = row[vIdx].trim().toUpperCase();
-                    const s = row[sIdx].trim().replace(/^"|"$/g, ''); // Remove quotes
-                    const b = row[bIdx].trim().replace(/^"|"$/g, '');
-
-                    if (personas.includes(p) && versions.includes(v)) {
-                        data[p][v].sub = s;
-                        data[p][v].body = b;
+                    const pName = columns[0].replace(/"/g, '').trim();
+                    if (personas.includes(pName)) {
+                        versions.forEach((v, i) => {
+                            // Subject Version A is col index 1, B is 2, etc.
+                            // Body Version A is col index 7, B is 8, etc.
+                            data[pName][v].sub = (columns[i + 1] || "").replace(/"/g, '').trim();
+                            data[pName][v].body = (columns[i + 7] || "").replace(/"/g, '').trim();
+                        });
                     }
                 });
-
-                localStorage.setItem('matrix_data', JSON.stringify(data));
-                location.reload(); // Refresh to show new data
+                localStorage.setItem('matrix_data_v73', JSON.stringify(data));
+                location.reload();
             };
             reader.readAsText(file);
         }
 
-        function downloadBackup() {
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = 'matrix_data_backup.json'; a.click();
-        }
-
-        function clearData() { if(confirm("This will wipe all messaging. Continue?")) { localStorage.clear(); location.reload(); } }
-        
+        function clearData() { if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); } }
         init();
     </script>
 </body>
