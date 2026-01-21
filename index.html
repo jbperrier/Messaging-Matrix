@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging Matrix V7.4 - Pro Import/Export</title>
+    <title>Messaging Matrix V7.5 - Full Template Suite</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; }
@@ -12,16 +12,17 @@
 </head>
 <body class="bg-slate-100 p-8">
     <div class="max-w-6xl mx-auto">
-        <header class="flex justify-between items-center mb-8">
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.4</span></h1>
-                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Stable Pro Build</p>
+                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.5</span></h1>
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Sync & Template Ready</p>
             </div>
-            <div class="flex gap-3 items-center">
+            <div class="flex flex-wrap gap-2 items-center">
+                <button onclick="downloadTemplateCSV()" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-emerald-100 transition">📥 Download Template</button>
                 <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="importWideCSV(event)">
-                <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-700 transition">📊 Import CSV</button>
-                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-50 transition">💾 Save Backup</button>
-                <button onclick="clearData()" class="text-xs text-red-500 hover:underline">Reset</button>
+                <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-blue-700 transition">📊 Import CSV</button>
+                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-slate-50 transition">💾 Save Backup</button>
+                <button onclick="clearData()" class="text-[10px] text-red-500 font-bold uppercase hover:underline ml-2">Reset</button>
             </div>
         </header>
 
@@ -30,12 +31,12 @@
                 <div>
                     <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Versions</h3>
                     <div id="version-tabs" class="flex gap-1 bg-slate-200 p-1 rounded-lg w-fit">
-                        <button onclick="setVersion('A')" id="tab-A" class="px-4 py-2 rounded text-sm transition">A</button>
-                        <button onclick="setVersion('B')" id="tab-B" class="px-4 py-2 rounded text-sm transition">B</button>
-                        <button onclick="setVersion('C')" id="tab-C" class="px-4 py-2 rounded text-sm transition">C</button>
-                        <button onclick="setVersion('D')" id="tab-D" class="px-4 py-2 rounded text-sm transition">D</button>
-                        <button onclick="setVersion('E')" id="tab-E" class="px-4 py-2 rounded text-sm transition">E</button>
-                        <button onclick="setVersion('F')" id="tab-F" class="px-4 py-2 rounded text-sm transition">F</button>
+                        <button onclick="setVersion('A')" id="tab-A" class="px-4 py-2 rounded text-sm transition font-bold">A</button>
+                        <button onclick="setVersion('B')" id="tab-B" class="px-4 py-2 rounded text-sm transition font-bold">B</button>
+                        <button onclick="setVersion('C')" id="tab-C" class="px-4 py-2 rounded text-sm transition font-bold">C</button>
+                        <button onclick="setVersion('D')" id="tab-D" class="px-4 py-2 rounded text-sm transition font-bold">D</button>
+                        <button onclick="setVersion('E')" id="tab-E" class="px-4 py-2 rounded text-sm transition font-bold">E</button>
+                        <button onclick="setVersion('F')" id="tab-F" class="px-4 py-2 rounded text-sm transition font-bold">F</button>
                     </div>
                 </div>
                 <div id="matrix-inputs" class="space-y-4"></div>
@@ -43,7 +44,7 @@
 
             <div class="col-span-5">
                 <div class="bg-white p-6 rounded-2xl shadow-xl sticky top-8 border border-slate-200">
-                    <h2 class="text-xs font-bold text-slate-400 uppercase mb-4">Preview (Version <span id="current-v-label">A</span>)</h2>
+                    <h2 class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-tighter">Live Preview (Version <span id="current-v-label">A</span>)</h2>
                     <select id="persona-select" onchange="updateUI()" class="w-full mb-4 p-2 border rounded font-bold text-sm bg-slate-50"></select>
                     
                     <div class="space-y-1 mb-4">
@@ -69,7 +70,7 @@
     <script>
         const personas = ["AI Security", "AI Governance", "CISO", "CAIO", "AWS Solution Consultant"];
         const versions = ["A", "B", "C", "D", "E", "F"];
-        let data = JSON.parse(localStorage.getItem('matrix_pro_v74')) || {};
+        let data = JSON.parse(localStorage.getItem('matrix_pro_v75')) || {};
         let currentV = "A";
 
         function init() {
@@ -83,9 +84,9 @@
                 const div = document.createElement('div');
                 div.className = "bg-white p-4 rounded-xl shadow-sm border border-slate-200";
                 div.innerHTML = `
-                    <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase">${p}</h4>
+                    <h4 class="text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-wide">${p}</h4>
                     <input type="text" id="sub-${p}" placeholder="Subject" oninput="save('${p}', 'sub', this.value)" class="w-full p-2 border rounded mb-2 text-sm outline-none focus:ring-1 focus:ring-blue-400">
-                    <textarea id="body-${p}" placeholder="Body" oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-24 outline-none focus:ring-1 focus:ring-blue-400"></textarea>
+                    <textarea id="body-${p}" placeholder="Body copy..." oninput="save('${p}', 'body', this.value)" class="w-full p-2 border rounded text-sm h-24 outline-none focus:ring-1 focus:ring-blue-400"></textarea>
                 `;
                 container.appendChild(div);
                 const opt = document.createElement('option'); opt.value = p; opt.textContent = p; select.appendChild(opt);
@@ -107,7 +108,7 @@
 
         function save(p, field, val) {
             data[p][currentV][field] = val;
-            localStorage.setItem('matrix_pro_v74', JSON.stringify(data));
+            localStorage.setItem('matrix_pro_v75', JSON.stringify(data));
             updateUI();
         }
 
@@ -117,17 +118,14 @@
             document.getElementById('preview-body').textContent = "Hi {{FirstName}},\n\n" + (data[p][currentV].body || "");
         }
 
-        // Generate logic matching your "Nested If" spreadsheet structure
         function generateHandlebars(field) {
             let code = (field === 'body') ? "Hi {{FirstName}},\n\n" : "";
-            
             function buildNested(index) {
-                if (index >= personas.length) return "Fallback Text";
+                if (index >= personas.length) return "[Default Text]";
                 const p = personas[index];
                 const content = data[p][currentV][field] || "";
                 return `{{#if Persona == '${p}'}}${content}{{else}}${buildNested(index + 1)}{{/if}}`;
             }
-
             code += buildNested(0);
             document.getElementById('output').value = code;
         }
@@ -137,7 +135,6 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const text = e.target.result;
-                // Robust CSV Splitter (Handles quotes and newlines)
                 const rows = text.split(/\r?\n/).map(line => {
                     const result = [];
                     let cur = '', inQuote = false;
@@ -155,25 +152,19 @@
                     const pName = cols[0].trim();
                     if (personas.includes(pName)) {
                         versions.forEach((v, i) => {
-                            data[pName][v].sub = cols[i + 1] ? cols[i + 1].trim() : "";
-                            data[pName][v].body = cols[i + 7] ? cols[i + 7].trim() : "";
+                            data[pName][v].sub = cols[i + 1] ? cols[i + 1].trim().replace(/^"|"$/g, '') : "";
+                            data[pName][v].body = cols[i + 7] ? cols[i + 7].trim().replace(/^"|"$/g, '') : "";
                         });
                     }
                 });
-                localStorage.setItem('matrix_pro_v74', JSON.stringify(data));
+                localStorage.setItem('matrix_pro_v75', JSON.stringify(data));
                 location.reload();
             };
             reader.readAsText(file);
         }
 
-        function downloadBackup() {
-            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = 'messaging_matrix_backup.json'; a.click();
-        }
-
-        function clearData() { if(confirm("Clear everything?")) { localStorage.clear(); location.reload(); } }
-        init();
-    </script>
-</body>
-</html>
+        function downloadTemplateCSV() {
+            const headers = [
+                "Persona", 
+                "Subject Version A", "Subject Version B", "Subject Version C", "Subject Version D", "Subject Version E", "Subject Version F",
+                "Body Version A", "Body Version B", "Body Version C", "Body Version D", "Body Version E", "Body Version F"
