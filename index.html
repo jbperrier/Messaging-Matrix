@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messaging Matrix V7.6 - Fixed & Stable</title>
+    <title>Messaging Matrix for Sequences</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .code-box { font-family: 'Courier New', monospace; background: #0f172a; color: #38bdf8; }
+        .code-box { font-family: 'Open Sans', monospace; background: #0f172a; color: #38bdf8; }
         .tab-active { border-bottom: 3px solid #2563eb; color: #2563eb; font-weight: bold; background: white !important; }
         input, textarea { transition: border 0.2s; }
     </style>
@@ -15,15 +15,14 @@
     <div class="max-w-6xl mx-auto">
         <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
-                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix <span class="text-blue-500">V7.6</span></h1>
-                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-tight">Logic Fixed • Wide-Import Stable</p>
+                <h1 class="text-2xl font-bold text-slate-800">Messaging Matrix<span class="text-blue-500">V7.6</span></h1>
             </div>
             <div class="flex flex-wrap gap-2 items-center">
                 <button onclick="downloadTemplateCSV()" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-emerald-100">📥 Template</button>
                 <input type="file" id="csv-input" accept=".csv" class="hidden" onchange="importWideCSV(event)">
                 <button onclick="document.getElementById('csv-input').click()" class="bg-blue-600 text-white px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-blue-700">📊 Import CSV</button>
-                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-3 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-slate-50">💾 Backup</button>
-                <button onclick="clearData()" class="text-[10px] text-red-500 font-bold uppercase hover:underline ml-2">Reset</button>
+                <button onclick="downloadBackup()" class="bg-white border border-slate-300 px-3 py-2 rounded-lg text-[10px] -black uppercase hover:bg-slate-50">💾 Backup</button>
+                <button onclick="clearData()" class="text-[10px] text-red-500 -bold uppercase hover:underline ml-2">Reset</button>
             </div>
         </header>
 
